@@ -31,8 +31,11 @@ class PacktAPIClient:
     def fetch_jwt(self):
         """Fetch user's JWT to be used when making Packt API requests."""
         try:
-            response = requests.post(PACKT_API_LOGIN_URL, json=self.credentials)
-            jwt = response.json().get('data').get('access')
+            if self.credentials['recaptcha'] == '':
+               jwt=input('Enter your jwt: ')
+            else:
+               response = requests.post(PACKT_API_LOGIN_URL, json=self.credentials)
+               jwt = response.json().get('data').get('access')
             self.session.headers.update({'authorization': 'Bearer {}'.format(jwt)})
             logger.info('JWT token has been fetched successfully!')
         except Exception:

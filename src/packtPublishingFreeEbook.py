@@ -40,20 +40,25 @@ PACKT_RECAPTCHA_SITE_KEY = '6LeAHSgUAAAAAKsn5jo6RUSTLVxGNYyuvUcLMe0_'
 @click.option('-m', '--mail', is_flag=True, help='Grab Free Learning Packt ebook and send it by an email.')
 @click.option('-sm', '--status_mail', is_flag=True, help='Send an email whether script execution was successful.')
 @click.option('-f', '--folder', is_flag=True, default=False, help='Download ebooks into separate directories.')
+@click.option('-j', '--jwt', is_flag=True, default=False, help='Request jwt via console input when needed.')
 @click.option(
     '--noauth_local_webserver',
     is_flag=True,
     default=False,
     help='See Google Drive API Setup section in README.'
 )
-def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth_local_webserver):
+def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, noauth_local_webserver):
     config_file_path = cfgpath
     into_folder = folder
 
     try:
         cfg = ConfigurationModel(config_file_path)
         product_data = None
-        recaptcha_solution = solve_recaptcha(cfg.anticaptcha_api_key, PACKT_URL, PACKT_RECAPTCHA_SITE_KEY)
+        if jwt:
+          recaptcha_solution = ''
+        else:
+          recaptcha_solution = solve_recaptcha(cfg.anticaptcha_api_key, PACKT_URL, PACKT_RECAPTCHA_SITE_KEY)
+          
         api_client = PacktAPIClient({'recaptcha': recaptcha_solution, **cfg.packt_login_credentials})
 
         # Grab the newest book
@@ -131,3 +136,6 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth
                 body=FAILURE_EMAIL_BODY.format(str(e))
             )
         sys.exit(2)
+
+if __name__ == "__main__":
+        packt_cli()
