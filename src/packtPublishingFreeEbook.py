@@ -136,6 +136,3 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, n
                 body=FAILURE_EMAIL_BODY.format(str(e))
             )
         sys.exit(2)
-
-if __name__ == "__main__":
-        packt_cli()
