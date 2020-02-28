@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
     long_description = f.read()
 
-package_version = '1.5.0'
+package_version = '1.5.0.2'
 
 requirements = [
     'click==7.0',

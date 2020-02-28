@@ -77,6 +77,10 @@ def download_products(api_client, download_directory, formats, product_list, int
                 logger.info('Title: "{}"'.format(book['title']))
                 if into_folder:
                     target_download_path = os.path.join(download_directory, file_name)
+                    test_target_download_path = target_download_path + '.txt'
+                    if os.path.exists(test_target_download_path):
+                       logger.info('Encountered file stop condition. Terminating.')
+                       return
                     if not os.path.isdir(target_download_path):
                         os.mkdir(target_download_path)
                 else:
