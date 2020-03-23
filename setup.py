@@ -4,13 +4,13 @@ from setuptools import find_packages, setup
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
     long_description = f.read()
 
-package_version = '1.5.0.2'
+package_version = '1.5.1'
 
 requirements = [
     'click==7.0',
     'google-api-python-client==1.6.3',
     'requests==2.20.0',
-    'python-slugify==1.2.6'
+    'python-slugify==4.0.0'
 ]
 
 dev_requirements = [
@@ -42,7 +42,7 @@ setup(
             'packt-cli = packtPublishingFreeEbook:packt_cli',
         ],
     },
-    download_url='https://github.com/luk6xff/Packt-Publishing-Free-Learning/archive/v1.5.0.tar.gz',
+    download_url='https://github.com/luk6xff/Packt-Publishing-Free-Learning/archive/v1.5.1.tar.gz',
     classifiers=[
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
