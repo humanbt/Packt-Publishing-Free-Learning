@@ -33,27 +33,26 @@ class PacktAPIClient:
         self.header = {
            "User-Agent": "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 " +
            "(KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-           "Authorization":""
-        }       
+           "Authorization": ""
+        }
         self.fetch_jwt()
 
     def fetch_jwt(self):
         """Fetch user's JWT to be used when making Packt API requests."""
         try:
             if self.refresh_token == '':
-               if self.credentials['recaptcha'] == '':
-                  self.bearer_token = input('Enter your jwt: ')
-                  self.refresh_token = input('Enter your refresh token: ')
-               else:
-                  response = requests.post(PACKT_API_LOGIN_URL, json=self.credentials)
-                  self.bearer_token = response.json().get('data').get('access')
-                  self.refresh_token = response.json().get('data').get('refresh')
-               self.session.headers.update({'authorization': 'Bearer {}'.format(self.bearer_token)})
-               logger.info('JWT token has been fetched successfully!')
+                if self.credentials['recaptcha'] == '':
+                    self.bearer_token = input('Enter your jwt: ')
+                    self.refresh_token = input('Enter your refresh token: ')
+                else:
+                    response = requests.post(PACKT_API_LOGIN_URL, json=self.credentials)
+                    self.bearer_token = response.json().get('data').get('access')
+                    self.refresh_token = response.json().get('data').get('refresh')
+                self.session.headers.update({'authorization': 'Bearer {}'.format(self.bearer_token)})
+                logger.info('JWT token has been fetched successfully!')
             else:
-               self.refresh_jwt()
+                self.refresh_jwt()
         except Exception:
-            logger.error(e)
             logger.error('Fetching JWT token failed!')
             sys.exit(2)
 
@@ -61,7 +60,7 @@ class PacktAPIClient:
         try:
             logger.info('Refreshing JWT token...')
             self.header["Authorization"] = 'Bearer ' + self.bearer_token
-            response = requests.post(PACKT_API_REFRESH_URL, json={'refresh':self.refresh_token}, headers=self.header)
+            response = requests.post(PACKT_API_REFRESH_URL, json={'refresh': self.refresh_token}, headers=self.header)
             self.bearer_token = response.json().get('data').get('access')
             self.refresh_token = response.json().get('data').get('refresh')
             self.session.headers.update({'authorization': 'Bearer {}'.format(self.bearer_token)})
@@ -70,7 +69,6 @@ class PacktAPIClient:
             logger.error(e)
             logger.error('Refreshing JWT token failed!')
             sys.exit(2)
-        
 
     def request(self, method, url, **kwargs):
         """Make a request to a Packt API."""
