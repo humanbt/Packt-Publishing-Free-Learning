@@ -4,7 +4,7 @@ import os
 import sys
 
 from api import PacktAPIClient
-from claimer import claim_product, get_all_books_data
+from claimer import claim_product, get_all_books_data, get_book_data
 from configuration import ConfigurationModel
 from downloader import download_products, slugify_product_name
 from utils.anticaptcha import solve_recaptcha
@@ -47,7 +47,12 @@ PACKT_RECAPTCHA_SITE_KEY = '6LeAHSgUAAAAAKsn5jo6RUSTLVxGNYyuvUcLMe0_'
     default=False,
     help='See Google Drive API Setup section in README.'
 )
-def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, noauth_local_webserver):
+@click.option(
+    '-p','--product', type=str, default='',
+    help='Download specific product code.'
+)
+
+def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, noauth_local_webserver, product):
     config_file_path = cfgpath
     into_folder = folder
 
@@ -60,6 +65,11 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, n
             recaptcha_solution = solve_recaptcha(cfg.anticaptcha_api_key, PACKT_URL, PACKT_RECAPTCHA_SITE_KEY)
 
         api_client = PacktAPIClient({'recaptcha': recaptcha_solution, **cfg.packt_login_credentials})
+
+        if product != '':
+            download_one = True
+        else:
+            download_one = False
 
         # Grab the newest book
         if grab or grabd or sgd or mail:
@@ -78,13 +88,20 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, n
                     body=SUCCESS_EMAIL_BODY.format(product_data['title'])
                 )
 
+
         # Download book(s) into proper location.
-        if grabd or dall or sgd or mail:
+        if grabd or dall or sgd or mail or download_one:
             download_directory, formats = cfg.config_download_data
             download_directory = download_directory if (dall or grabd) else os.getcwd()  # cwd for temporary downloads
             formats = formats or AVAILABLE_DOWNLOAD_FORMATS
 
-            if dall:
+            # Download one book into proper location.
+            if download_one:
+                product_data = get_book_data(api_client, product)
+                if product_data != None:
+                    # get_product_download_urls
+                    download_products(api_client, download_directory, formats, [product_data], into_folder=into_folder)
+            elif dall:
                 download_products(
                     api_client,
                     download_directory,

@@ -33,6 +33,15 @@ def get_all_books_data(api_client):
     except (AttributeError, TypeError):
         logger.error('Couldn\'t fetch user\'s books data.')
 
+def get_book_data(api_client, product_id):
+    logger.info("Getting book data for {}.".format(product_id))
+    try:
+        product_response = api_client.get(PACKT_PRODUCT_SUMMARY_URL.format(product_id=product_id))
+        product_data = {'id': product_id, 'title': product_response.json()['title']}\
+            if product_response.status_code == 200 else None
+        return product_data
+    except (AttributeError, TypeError):
+        logger.error('Couldn\'t fetch book data.')
 
 def get_single_page_books_data(api_client, page):
     """Fetch ebooks data from single products API pagination page."""
