@@ -48,10 +48,9 @@ PACKT_RECAPTCHA_SITE_KEY = '6LeAHSgUAAAAAKsn5jo6RUSTLVxGNYyuvUcLMe0_'
     help='See Google Drive API Setup section in README.'
 )
 @click.option(
-    '-p','--product', type=str, default='',
+    '-p', '--product', type=str, default='',
     help='Download specific product code.'
 )
-
 def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, noauth_local_webserver, product):
     config_file_path = cfgpath
     into_folder = folder
@@ -88,7 +87,6 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, n
                     body=SUCCESS_EMAIL_BODY.format(product_data['title'])
                 )
 
-
         # Download book(s) into proper location.
         if grabd or dall or sgd or mail or download_one:
             download_directory, formats = cfg.config_download_data
@@ -98,7 +96,7 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, n
             # Download one book into proper location.
             if download_one:
                 product_data = get_book_data(api_client, product)
-                if product_data != None:
+                if product_data is not None:
                     # get_product_download_urls
                     download_products(api_client, download_directory, formats, [product_data], into_folder=into_folder)
             elif dall:
