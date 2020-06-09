@@ -26,10 +26,12 @@ DEFAULT_PAGINATION_SIZE = 25
 class PacktAPIClient:
     """Packt API client making API requests on script's behalf."""
 
-    def __init__(self, credentials):
+    def __init__(self, credentials, cookie):
         self.session = requests.Session()
         self.credentials = credentials
+        self.cookie = cookie
         self.refresh_token = ''
+        self.bearer_token = ''
         self.header = {
            "User-Agent": "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 " +
            "(KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
@@ -40,9 +42,19 @@ class PacktAPIClient:
     def fetch_jwt(self):
         """Fetch user's JWT to be used when making Packt API requests."""
         try:
+            if self.cookie is not None:
+                for cookie in self.cookie:
+                    if (cookie.name == 'access_token_live' and cookie.domain == '.packtpub.com'):
+                        self.bearer_token = cookie.value
+                    if (cookie.name == 'refresh_token_live' and cookie.domain == '.packtpub.com'):
+                        self.refresh_token = cookie.value
+                    if (self.bearer_token != '' and self.refresh_token != ''):
+                        break
+                logger.info('access: {}'.format(self.bearer_token))
+                logger.info('refresh: {}'.format(self.refresh_token))
             if self.refresh_token == '':
                 if self.credentials['recaptcha'] == '':
-                    self.bearer_token = input('Enter your jwt: ')
+                    self.bearer_token = input('Enter your access token: ')
                     self.refresh_token = input('Enter your refresh token: ')
                 else:
                     response = requests.post(PACKT_API_LOGIN_URL, json=self.credentials)

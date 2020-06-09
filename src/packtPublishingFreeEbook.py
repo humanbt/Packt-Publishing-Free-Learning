@@ -2,6 +2,7 @@ import click
 import datetime as dt
 import os
 import sys
+import browser_cookie3
 
 from api import PacktAPIClient
 from claimer import claim_product, get_all_books_data, get_book_data
@@ -40,7 +41,8 @@ PACKT_RECAPTCHA_SITE_KEY = '6LeAHSgUAAAAAKsn5jo6RUSTLVxGNYyuvUcLMe0_'
 @click.option('-m', '--mail', is_flag=True, help='Grab Free Learning Packt ebook and send it by an email.')
 @click.option('-sm', '--status_mail', is_flag=True, help='Send an email whether script execution was successful.')
 @click.option('-f', '--folder', is_flag=True, default=False, help='Download ebooks into separate directories.')
-@click.option('-j', '--jwt', is_flag=True, default=False, help='Request jwt via console input when needed.')
+@click.option('-j', '--jwt', is_flag=True, default=False, help='Request tokens via console input when needed.')
+@click.option('-cj', '--cookiejwt', is_flag=True, default=False, help='Get tokens via browser cookie.')
 @click.option(
     '--noauth_local_webserver',
     is_flag=True,
@@ -51,19 +53,25 @@ PACKT_RECAPTCHA_SITE_KEY = '6LeAHSgUAAAAAKsn5jo6RUSTLVxGNYyuvUcLMe0_'
     '-p', '--product', type=str, default='',
     help='Download specific product code.'
 )
-def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, noauth_local_webserver, product):
+def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, jwt, cookiejwt,
+              noauth_local_webserver, product):
     config_file_path = cfgpath
     into_folder = folder
 
     try:
         cfg = ConfigurationModel(config_file_path)
         product_data = None
-        if jwt:
+        if jwt or cookiejwt:
             recaptcha_solution = ''
         else:
             recaptcha_solution = solve_recaptcha(cfg.anticaptcha_api_key, PACKT_URL, PACKT_RECAPTCHA_SITE_KEY)
 
-        api_client = PacktAPIClient({'recaptcha': recaptcha_solution, **cfg.packt_login_credentials})
+        cj = None
+        if cookiejwt:
+            logger.info("Fetching packtpub.com cookie")
+            cj = browser_cookie3.load(domain_name='.packtpub.com')
+
+        api_client = PacktAPIClient({'recaptcha': recaptcha_solution, **cfg.packt_login_credentials}, cj)
 
         if product != '':
             download_one = True
